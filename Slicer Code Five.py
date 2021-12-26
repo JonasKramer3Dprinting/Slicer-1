@@ -1,4 +1,5 @@
 import math
+
 pi = math.pi
 
 tei = 0
@@ -42,70 +43,122 @@ gCodeEnd = ""
 
 option = 0
 
-def find_factor(x,y,X,Y,lineWidth,lineHeigth,pi):
-    lineDistance = ((X - x)**2 + (Y - y)**2)**0.5
-    e = (lineDistance * lineWidth * lineHeigth * 4)/(1.75**2 * pi)
+
+def find_factor(x, y, X, Y, lineWidth, lineHeigth, pi):
+    lineDistance = ((X - x) ** 2 + (Y - y) ** 2) ** 0.5
+    e = (lineDistance * lineWidth * lineHeigth * 4) / (1.75 ** 2 * pi)
     return e
-def g0(x,y,z,travelSpeed):
-    s = "G0 X" + str(x) + " Y" + str( y)+ " Z" + str(z) + " F" + str(travelSpeed) + "\n"
+
+
+def g0(x, y, z, travelSpeed):
+    s = "G0 X" + str(x) + " Y" + str(y) + " Z" + str(z) + " F" + str(travelSpeed) + "\n"
     return s
-def g1(x,y,z,extrusionSpeed,X,Y,lineWidth,lineHeigth,pi):
-    s = "G1 X" + str(x) + " Y" + str(y) + " Z" + str(z) + " E" + str(find_factor(x,y,X,Y,lineWidth,lineHeigth,pi)) + " F" + str(extrusionSpeed) + "\n"
+
+
+def g1(x, y, z, extrusionSpeed, X, Y, lineWidth, lineHeigth, pi):
+    s = (
+        "G1 X"
+        + str(x)
+        + " Y"
+        + str(y)
+        + " Z"
+        + str(z)
+        + " E"
+        + str(find_factor(x, y, X, Y, lineWidth, lineHeigth, pi))
+        + " F"
+        + str(extrusionSpeed)
+        + "\n"
+    )
     return s
+
+
 def g1retract(retractionDistance):
     s = "G1 E-" + str(retractionDistance) + "\n"
     return s
+
+
 def g1retractreversed(retractionDistance):
     s = "G1 E" + str(retractionDistance) + "\n"
     return s
+
+
 def g17():
     s = "G17; change to xy \n"
     return s
+
+
 def g18():
     s = "G18; change to xz \n"
     return s
+
+
 def g19():
     s = "G19; change to yz \n"
     return s
+
+
 def g20():
     s = "G20; change to imperial system \n"
     return s
+
+
 def g21():
     s = "G21; change to metric system \n"
     return s
+
+
 def g28():
     s = "G28; homing \n"
     return s
+
+
 def g90():
     s = "G90; change to absolutive positioning \n"
     return s
+
+
 def g91():
     s = "G91; change to relative positioning \n"
     return s
-def g92(x,y,z):
+
+
+def g92(x, y, z):
     x = 0
     y = 0
     z = 0
     s = "G92 X" + str(x) + " Y" + str(y) + " Z" + str(z) + "\n"
     return s
+
+
 def m82():
     s = "M82; extruder changes to absolutive positioning \n"
     return s
+
+
 def m83():
     s = "M83; extruder changes to relative positioning \n"
     return s
+
+
 def m104(extruderTemperature):
     s = "M104 S" + str(extruderTemperature) + "\n"
     return s
+
+
 def m109(extruderTemperature):
     s = "M109 S" + str(extruderTemperature) + "\n"
     return s
+
+
 def m140(bedTemperature):
     s = "M140 S" + str(bedTemperature) + "\n"
     return s
+
+
 def m190(bedTemperature):
     s = "M190 S" + str(bedTemperature) + "\n"
     return s
+
 
 def printSettings():
     global tei
@@ -134,6 +187,8 @@ def printSettings():
     fei = float(input("Initial Layer Extrusion Speed: "))
     fe = float(input("Extrusion Speed: "))
     rd = float(input("Retract Distance: "))
+
+
 def changeOne():
     global extruderTemperature
     global bedTemperature
@@ -143,6 +198,8 @@ def changeOne():
     bedTemperature = tbi
     lineHeigth = lh
     retractionDistance = 10
+
+
 def changeTwo():
     global extruderTemperature
     global bedTemperature
@@ -158,6 +215,8 @@ def changeTwo():
     travelSpeed = fti
     extrusionSpeed = fei
     retractionDistance = rd
+
+
 def changeThree():
     global extruderTemperature
     global bedTemperature
@@ -173,34 +232,109 @@ def changeThree():
     travelSpeed = ft
     extrusionSpeed = fe
     retractionDistance = rd
-    
+
+
 def printOptions():
     global option
-    option = input("What do you want to print? \nEnter 0 for printing a quader. \nEnter 1 for printing a zylinder. \nEnter 2 for printing an extruded equilateral polygon. \nEnter 3 for printing an extruded surface made of connected corners. \nEnter your number here: ")
-    
+    option = input(
+        "What do you want to print? \nEnter 0 for printing a quader. \nEnter 1 for printing a zylinder. \nEnter 2 for printing an extruded equilateral polygon. \nEnter 3 for printing an extruded surface made of connected corners. \nEnter your number here: "
+    )
+
+
 printOptions()
 
 printSettings()
 
 changeOne()
-gCodeStart = ";FLAVOR:Marlin \n;Layer height: " + str(lh) +" \n;Generated with Cura_SteamEngine 4.9.0 \n" + m140(bedTemperature) + "M105 \n" + m190(bedTemperature) + m104(extruderTemperature) + "M105 \n" + m109(extruderTemperature) + "M83 ;relative extrusion mode \n; Ender 3 Custom Start G-code \nG92 E0 ; Reset Extruder \nG28 ; Home all axes \nG1 Z2.0 F3000 ; Move Z Axis up little to prevent scratching of Heat Bed \nG1 X0.1 Y20 Z0.3 F5000.0 ; Move to start position \nG1 X0.1 Y200.0 Z0.3 F1500.0 E15 ; Draw the first line \nG1 X0.4 Y200.0 Z0.3 F5000.0 ; Move to side a little \nG1 X0.4 Y20 Z0.3 F1500.0 E15 ; Draw the second line \nG92 E0 ; Reset Extruder \nG1 Z2.0 F3000 ; Move Z Axis up little to prevent scratching of Heat Bed \nG1 X5 Y20 Z0.3 F5000.0 ; Move over to prevent blob squish \nG92 E0 \nG92 E0 \nG1 F3000 E-8 \n"
+gCodeStart = (
+    ";FLAVOR:Marlin \n;Layer height: "
+    + str(lh)
+    + " \n;Generated with Cura_SteamEngine 4.9.0 \n"
+    + m140(bedTemperature)
+    + "M105 \n"
+    + m190(bedTemperature)
+    + m104(extruderTemperature)
+    + "M105 \n"
+    + m109(extruderTemperature)
+    + "M83 ;relative extrusion mode \n; Ender 3 Custom Start G-code \nG92 E0 ; Reset Extruder \nG28 ; Home all axes \nG1 Z2.0 F3000 ; Move Z Axis up little to prevent scratching of Heat Bed \nG1 X0.1 Y20 Z0.3 F5000.0 ; Move to start position \nG1 X0.1 Y200.0 Z0.3 F1500.0 E15 ; Draw the first line \nG1 X0.4 Y200.0 Z0.3 F5000.0 ; Move to side a little \nG1 X0.4 Y20 Z0.3 F1500.0 E15 ; Draw the second line \nG92 E0 ; Reset Extruder \nG1 Z2.0 F3000 ; Move Z Axis up little to prevent scratching of Heat Bed \nG1 X5 Y20 Z0.3 F5000.0 ; Move over to prevent blob squish \nG92 E0 \nG92 E0 \nG1 F3000 E-8 \n"
+)
 
-list = [50,50,50,70,70,70,70,50]
-list = [75.0, 50, 74.21457902821578, 56.21724717912137, 71.9076670010966, 62.04384185254288, 68.22421568553528, 67.11367764821722, 63.39566987447491, 71.10819813755037, 57.72542485937369, 73.77641290737884, 51.56976298823283, 74.9506682107068, 45.31546713535688, 74.55718126821722, 39.35551771087318, 72.62067631165048, 34.06440025628275, 69.26283106939474, 29.774575140626318, 64.69463130731182, 26.755587852793713, 59.20311381711694, 25.197132467138054, 53.1333308391076, 25.197132467138054, 46.86666916089241, 26.755587852793713, 40.79688618288305, 29.774575140626315, 35.30536869268818, 34.06440025628276, 30.737168930605264, 39.355517710873194, 27.379323688349505, 45.31546713535688, 25.442818731782783, 51.569762988232846, 25.049331789293213, 57.72542485937368, 26.22358709262116, 63.3956698744749, 28.89180186244961, 68.2242156855353, 32.886322351782795, 71.9076670010966, 37.95615814745712, 74.21457902821578, 43.782752820878635, 75.0, 50]
+list = [50, 50, 50, 70, 70, 70, 70, 50]
+list = [
+    75.0,
+    50,
+    74.21457902821578,
+    56.21724717912137,
+    71.9076670010966,
+    62.04384185254288,
+    68.22421568553528,
+    67.11367764821722,
+    63.39566987447491,
+    71.10819813755037,
+    57.72542485937369,
+    73.77641290737884,
+    51.56976298823283,
+    74.9506682107068,
+    45.31546713535688,
+    74.55718126821722,
+    39.35551771087318,
+    72.62067631165048,
+    34.06440025628275,
+    69.26283106939474,
+    29.774575140626318,
+    64.69463130731182,
+    26.755587852793713,
+    59.20311381711694,
+    25.197132467138054,
+    53.1333308391076,
+    25.197132467138054,
+    46.86666916089241,
+    26.755587852793713,
+    40.79688618288305,
+    29.774575140626315,
+    35.30536869268818,
+    34.06440025628276,
+    30.737168930605264,
+    39.355517710873194,
+    27.379323688349505,
+    45.31546713535688,
+    25.442818731782783,
+    51.569762988232846,
+    25.049331789293213,
+    57.72542485937368,
+    26.22358709262116,
+    63.3956698744749,
+    28.89180186244961,
+    68.2242156855353,
+    32.886322351782795,
+    71.9076670010966,
+    37.95615814745712,
+    74.21457902821578,
+    43.782752820878635,
+    75.0,
+    50,
+]
 
 changeTwo()
 z = lineHeigth
-gCodeFirstLayer = m104(extruderTemperature) + m140(bedTemperature) + g0(list[0],list[1],z,travelSpeed) + g1retractreversed(8)
-for a in range (0,len(list) - 2,2):
+gCodeFirstLayer = (
+    m104(extruderTemperature)
+    + m140(bedTemperature)
+    + g0(list[0], list[1], z, travelSpeed)
+    + g1retractreversed(8)
+)
+for a in range(0, len(list) - 2, 2):
     X = list[a]
     Y = list[a + 1]
     x = list[a + 2]
     y = list[a + 3]
-    gCodeFirstLayer = gCodeFirstLayer + g1(x,y,z,extrusionSpeed,X,Y,lineWidth,lineHeigth,pi)
+    gCodeFirstLayer = gCodeFirstLayer + g1(
+        x, y, z, extrusionSpeed, X, Y, lineWidth, lineHeigth, pi
+    )
 
 gCode = gCodeStart + gCodeFirstLayer + gCodeMiddle + gCodeEnd
 print(gCode)
 
 name = input("Name: ")
-with open(name + ".gcode","w") as file:
+with open(name + ".gcode", "w") as file:
     file.write(gCode)
