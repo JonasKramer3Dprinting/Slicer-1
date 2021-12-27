@@ -2,6 +2,7 @@ import math
 
 pi = math.pi
 
+# hier werden die globalen Variablen aufgelistet
 tei = 0
 te = 0
 tbi = 0
@@ -46,13 +47,14 @@ placementX = 0
 placementY = 0
 list = []
 
-
+# hier ist die Funktion zur Extrusionsberechnung für lineare Bewegungen
 def find_factor(x, y, X, Y, lineWidth, lineHeigth, pi):
     lineDistance = ((X - x) ** 2 + (Y - y) ** 2) ** 0.5
     e = (lineDistance * lineWidth * lineHeigth * 4) / (1.75 ** 2 * pi)
     return e
 
 
+# nun werden alle Funktionen geschrieben, die als Rückgabe den benötigten gCode ausgeben
 def g0(x, y, z, travelSpeed):
     s = "G0 X" + str(x) + " Y" + str(y) + " Z" + str(z) + " F" + str(travelSpeed) + "\n"
     return s
@@ -163,6 +165,7 @@ def m190(bedTemperature):
     return s
 
 
+# hier wird die Funktion definiert, mit der die Druckeinstellungen gesetzt werden
 def printSettings():
     global tei
     global te
@@ -192,6 +195,7 @@ def printSettings():
     rd = float(input("Retract Distance: "))
 
 
+# hier werden die Druckeinstellungen auf die Werte der ersten Extrusionslinien gesetzt
 def changeOne():
     global extruderTemperature
     global bedTemperature
@@ -203,6 +207,7 @@ def changeOne():
     retractionDistance = 10
 
 
+# hier werden die Druckeinstellungen auf die Werte der ersten Ebene gesetzt
 def changeTwo():
     global extruderTemperature
     global bedTemperature
@@ -220,6 +225,7 @@ def changeTwo():
     retractionDistance = rd
 
 
+# hier werden die Druckeinstellungen auf die Werte der zweiten bis zur letzten Ebene gesetzt
 def changeThree():
     global extruderTemperature
     global bedTemperature
@@ -237,6 +243,7 @@ def changeThree():
     retractionDistance = rd
 
 
+# mit dieser Funktion wird abgefragt, was genau gedruckt werden soll
 def printOptions():
     global option
     option = int(
@@ -246,6 +253,7 @@ def printOptions():
     )
 
 
+# mit dieser Funktion wird abgefragt, wo das zu druckende Bauteil platziert wird
 def placement():
     global placementX
     global placementY
@@ -258,6 +266,7 @@ def placement():
     )
 
 
+# mit dieser Funktion wird die erste Obtion verwirklicht innerhalb der ersten Ebene
 def optionZero():
     global placementX
     global placementY
@@ -316,6 +325,8 @@ printOptions()
 printSettings()
 
 changeOne()
+
+# mit folgendem Code wird der Startcode festgelegt
 gCodeStart = (
     ";FLAVOR:Marlin \n;Layer height: "
     + str(lh)
@@ -329,6 +340,7 @@ gCodeStart = (
     + "M83 ;relative extrusion mode \n; Ender 3 Custom Start G-code \nG92 E0 ; Reset Extruder \nG28 ; Home all axes \nG1 Z2.0 F3000 ; Move Z Axis up little to prevent scratching of Heat Bed \nG1 X0.1 Y20 Z0.3 F5000.0 ; Move to start position \nG1 X0.1 Y200.0 Z0.3 F1500.0 E15 ; Draw the first line \nG1 X0.4 Y200.0 Z0.3 F5000.0 ; Move to side a little \nG1 X0.4 Y20 Z0.3 F1500.0 E15 ; Draw the second line \nG92 E0 ; Reset Extruder \nG1 Z2.0 F3000 ; Move Z Axis up little to prevent scratching of Heat Bed \nG1 X5 Y20 Z0.3 F5000.0 ; Move over to prevent blob squish \nG92 E0 \nG92 E0 \nG1 F3000 E-8 \n"
 )
 
+# hier wird die Liste, die später von dem Extruder abgefahren wird festgelegtd
 list = [
     75.0,
     50,
@@ -430,10 +442,12 @@ changeTwo()
 
 placement()
 
+# hier wird die erste Option verwendet, falls dies zuvor angegeben wurde
 if option == 0:
     optionZero()
     print(list)
 
+# hier wird der Code für die erste Schicht angefangen zu schreiben
 z = lineHeigth
 gCodeFirstLayer = (
     m104(extruderTemperature)
@@ -441,6 +455,8 @@ gCodeFirstLayer = (
     + g0(list[0], list[1], z, travelSpeed)
     + g1retractreversed(8)
 )
+
+# hier werden die vier gegebenen Punkte abgefahren
 for a in range(0, len(list) - 2, 2):
     X = list[a]
     Y = list[a + 1]
@@ -450,9 +466,11 @@ for a in range(0, len(list) - 2, 2):
         x, y, z, extrusionSpeed, X, Y, lineWidth, lineHeigth, pi
     )
 
+# hier werdden die verschiedenen Codes addiert
 gCode = gCodeStart + gCodeFirstLayer + gCodeMiddle + gCodeEnd
 print(gCode)
 
+# hier wird der Code abgespeichert
 name = input("Name: ")
 with open(name + ".gcode", "w") as file:
     file.write(gCode)
